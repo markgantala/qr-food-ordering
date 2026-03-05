@@ -458,6 +458,14 @@ input{
     }
 }
 
+/* For tablets and medium screens */
+@media(min-width:601px) and (max-width:768px){
+    #menu{
+        grid-template-columns: repeat(3,1fr) !important;
+        gap: 15px;
+    }
+}
+
 /* For very small phones */
 @media(max-width:380px){
     #menu{
@@ -469,3 +477,4 @@ input{
         height: 100px;
     }
 }
+
