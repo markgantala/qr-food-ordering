@@ -430,6 +430,15 @@ input{
 
 /* Mobile Optimization */
 
+#menu {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 15px;
+    justify-content: center;
+}
+
+/* Mobile Optimization */
 @media(max-width:600px){
     #menu{
         grid-template-columns: repeat(2,1fr) !important;
@@ -461,14 +470,4 @@ input{
     .product-img{
         height: 100px;
     }
-}
-
-/* Desktop default (4 columns) - add this if not already there */
-#menu {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-
-    padding: 15px;
-    justify-content: center;
 }
