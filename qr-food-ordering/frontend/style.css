@@ -102,11 +102,8 @@ body{
 
 #menu{
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
-
-    padding: 15px;
-    justify-content: center;
 }
 /* Product Card */
 
@@ -438,13 +435,6 @@ input{
 
 /* Mobile Optimization */
 
-@media(max-width:768px){
-    #menu{
-        grid-template-columns: repeat(3,1fr) !important;
-    }
-}
-
-/* For your Infinix Hot 15 Pro and similar phones */
 @media(max-width:600px){
     #menu{
         grid-template-columns: repeat(2,1fr) !important;
@@ -477,4 +467,3 @@ input{
         height: 100px;
     }
 }
-
