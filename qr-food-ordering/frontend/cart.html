@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="cart-header">
+        <a href="/" class="back-btn">←</a>
+        <h2>Your Cart</h2>
+    </div>
+
+    <hr>
+
+    <div id="cartItems"></div>
+
+    <div id="cartTotal"></div>
+
+    <button onclick="goToCheckout()" id="checkoutBtn">Proceed to Checkout</button>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        function displayCart() {
+            if (cart.length === 0) {
+                document.getElementById('cartItems').innerHTML = '<p>Cart is empty</p>';
+                document.getElementById('cartTotal').innerHTML = '';
+                document.getElementById('checkoutBtn').style.display = 'none';
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+            
+            cart.forEach((item, index) => {
+                let subtotal = item.price * item.qty;
+                total += subtotal;
+                html += `
+                    <div class="cart-item">
+
+                        <img src="${item.image}" class="cart-img">
+
+                        <div class="cart-info">
+                            <div class="cart-name">${item.name}</div>
+                            ₱${item.price}
+                            <div class="qty-controls">
+                                <button onclick="changeQty(${index}, -1)">-</button>
+                                ${item.qty}
+                                <button onclick="changeQty(${index}, 1)">+</button>
+                            </div>
+
+                        <div>
+                            Subtotal: ₱${subtotal}
+                        </div>
+
+                        <button class="remove-btn" onclick="removeItem(${index})">
+                            Remove
+                        </button>
+                          
+                        </div>
+
+                </div>
+                `;
+            });
+            
+            document.getElementById('cartItems').innerHTML = html;
+            document.getElementById('cartTotal').innerHTML = `<h3 class="total">Total: ₱${total}</h3>`;
+            document.getElementById('checkoutBtn').style.display = 'block';
+            
+        }
+
+        function changeQty(index, change) {
+            cart[index].qty += change;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCart();
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCart();
+        }
+
+        function goToCheckout() {
+            window.location.href = '/checkout';
+        }
+
+        displayCart();
+    </script>
+</body>
+</html>

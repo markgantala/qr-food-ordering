@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Ticket</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="ticket-page">
+        <h2 class="success-title">✅ Order Confirmed!</h2>
+        <div id="ticket"></div>
+        <a href="/" class="order-again">← Order Again</a>
+    </div>
+
+    <script>
+        let orderNum = new URLSearchParams(window.location.search).get('order');
+        
+        fetch('/api/orders/' + orderNum)
+            .then(res => res.json())
+            .then(order => {
+                document.getElementById('ticket').innerHTML = `
+                    <div class="ticket-card">
+                        <h3>Order #${order.order_number}</h3>
+                        <img src="${order.qr_code}" class="qr-img">
+                        <p><b>Status:</b> ${order.status}</p>
+                        <p><b>Payment:</b> ${order.payment_method}</p>
+                        <p><b>Total:</b> ₱${order.total}</p>
+                        <hr>
+                        <i>Show this QR code when picking up</i>
+                    </div>
+                `;
+            });
+    </script>
+</body>
+</html>

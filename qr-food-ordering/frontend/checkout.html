@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="checkout-container">
+    <div id="checkout-header">
+        <a href="/cart" class="back-btn">←</a>
+        <h2 class="title">Checkout</h2>     
+    </div>
+    
+
+
+    <div id="summary" class="order-summary"></div>
+
+    <label>Your Name</label>
+    <input type="text" id="customerName" placeholder="Enter name">
+
+    <label>Payment Method</label>
+
+    <div class="payment-methods">
+        <button onclick="setPayment('cash')" id="cashBtn">💵 Cash</button>
+        <button onclick="setPayment('gcash')" id="gcashBtn">📱 GCash</button>
+        <button onclick="setPayment('maya')" id="mayaBtn">💳 Maya</button>
+    </div>
+
+    <button onclick="placeOrder()" class="order-btn">Place Order</button>
+
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let paymentMethod = 'cash';
+
+        function setPayment(method) {
+            paymentMethod = method;
+            document.getElementById('cashBtn').style.background = method === 'cash' ? 'lightgreen' : '';
+            document.getElementById('gcashBtn').style.background = method === 'gcash' ? 'lightgreen' : '';
+            document.getElementById('mayaBtn').style.background = method === 'maya' ? 'lightgreen' : '';
+        }
+
+        function displaySummary() {
+            let total = 0;
+            let items = '';
+            cart.forEach(item => {
+                total += item.price * item.qty;
+                items += `${item.name} x${item.qty}<br>`;
+            });
+            
+            document.getElementById('summary').innerHTML = `
+                <div style="border:1px solid #ccc; padding:10px; text-align: center;">
+                    ${items}
+                    <hr>
+                    <b>Total: ₱${total}</b>
+                </div>
+            `;
+        }
+
+        function placeOrder() {
+            if (cart.length === 0) {
+                alert('Cart is empty');
+                return;
+            }
+
+            let name = document.getElementById('customerName').value || 'Guest';
+            let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    items: cart,
+                    total: total,
+                    customer_name: name,
+                    payment_method: paymentMethod
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                localStorage.removeItem('cart');
+                window.location.href = '/ticket?order=' + data.order_number;
+            });
+        }
+
+        displaySummary();
+        setPayment('cash');
+    </script>
+</body>
+</html>

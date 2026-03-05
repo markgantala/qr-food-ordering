@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login</title>
+</head>
+<body>
+    <h2>Admin Login</h2>
+    <input type="text" id="username" placeholder="Username" value="admin"><br><br>
+    <input type="password" id="password" placeholder="Password" value="admin123"><br><br>
+    <button onclick="login()">Login</button>
+    <p id="errorMsg" style="color:red"></p>
+
+    <script>
+        function login() {
+            let user = document.getElementById('username').value;
+            let pass = document.getElementById('password').value;
+            
+            fetch('/api/admin/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user: user, pass: pass})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('admin', 'loggedin');
+                    window.location.href = '/admin/dashboard';
+                } else {
+                    document.getElementById('errorMsg').innerText = 'Wrong credentials';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

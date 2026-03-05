@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h2>⚙️ Admin Dashboard</h2>
+    <button onclick="logout()">Logout</button>
+    <hr>
+
+    <h3>➕ Add New Product</h3>
+    <form id="addProductForm" enctype="multipart/form-data">
+        <input type="text" name="name" placeholder="Product Name" required><br><br>
+        <input type="number" name="price" placeholder="Price" required><br><br>
+        <input type="text" name="category" placeholder="Category (e.g., Main Dish, Rice)" required><br><br>
+        <input type="file" name="image" accept="image/*"><br><br>
+        <small>Leave empty for default image</small><br><br>
+        <button type="submit">Add Product</button>
+    </form>
+
+    <hr>
+    <h3>📋 Products List</h3>
+    <div id="productsList"></div>
+
+    <hr>
+    <h3>📦 Recent Orders</h3>
+    <div id="ordersList"></div>
+
+    <script>
+        // Check if logged in
+        if (!localStorage.getItem('admin')) {
+            window.location.href = '/admin';
+        }
+
+        // Handle add product form
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let formData = new FormData(this);
+            
+            fetch('/api/products', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(() => {
+                this.reset();
+                loadProducts();
+                alert('Product added!');
+            });
+        });
+
+        // Load products
+        function loadProducts() {
+            fetch('/api/products')
+                .then(res => res.json())
+                .then(products => {
+                    let html = '';
+                    products.forEach(p => {
+                        html += `
+                            <div style="border:1px solid #ccc; margin:10px; padding:10px; display:inline-block; width:300px">
+                                <img src="${p.image}" style="width:100%; height:150px; object-fit:cover"><br>
+                                <b>${p.name}</b> - ₱${p.price}<br>
+                                Category: ${p.category}<br>
+                                <button onclick="deleteProduct(${p.id})">Delete</button>
+                                <button onclick="editProduct(${p.id})">Edit</button>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('productsList').innerHTML = html || '<p>No products</p>';
+                });
+        }
+
+        // Delete product
+        function deleteProduct(id) {
+            if (confirm('Delete this product?')) {
+                fetch('/api/products/' + id, {method: 'DELETE'})
+                    .then(() => loadProducts());
+            }
+        }
+
+        // Edit product (simplified for now)
+        function editProduct(id) {
+            alert('Edit feature - will implement with image upload soon');
+        }
+
+        // Load orders
+        function loadOrders() {
+            fetch('/api/orders')
+                .then(res => res.json())
+                .then(orders => {
+                    let html = '';
+                    orders.slice(0, 10).forEach(o => {
+                        html += `
+                            <div style="border:1px solid #ccc; margin:10px; padding:10px">
+                                <b>${o.order_number}</b><br>
+                                Customer: ${o.customer_name}<br>
+                                Total: ₱${o.total}<br>
+                                Status: 
+                                <select onchange="updateOrder(${o.id}, this.value)">
+                                    <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+                                    <option value="preparing" ${o.status==='preparing'?'selected':''}>Preparing</option>
+                                    <option value="ready" ${o.status==='ready'?'selected':''}>Ready</option>
+                                    <option value="completed" ${o.status==='completed'?'selected':''}>Completed</option>
+                                </select>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('ordersList').innerHTML = html || '<p>No orders</p>';
+                });
+        }
+
+        function updateOrder(id, status) {
+            fetch('/api/orders/' + id, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({status: status})
+            }).then(() => loadOrders());
+        }
+
+        function logout() {
+            localStorage.removeItem('admin');
+            window.location.href = '/admin';
+        }
+
+        // Initial load
+        loadProducts();
+        loadOrders();
+
+        // Auto refresh every 5 seconds
+        setInterval(() => {
+            loadProducts();
+            loadOrders();
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Food Menu</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Happy+Monkey&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header id="menu-header">
+    <div class="brand">
+        <img src="logo.png">
+        <h1 id="brand-name">Ramburat</h1>
+    </div>
+
+    <a href="/cart">🛒<span id="cartCount">0</span></a>
+</header>
+    <div id="menu-browse">Menu</div>
+    <!-- Category buttons will be added here dynamically -->
+    <div id="categoryButtons">
+        <button onclick="filterProducts('all')">All</button>
+    </div>
+    
+    <!-- Products grid -->
+    <div id="menu"></div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let allProducts = [];
+        let currentFilter = 'all';
+        
+        function updateCartCount() {
+            let total = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cartCount').innerText = '(' + total + ')';
+        }
+
+        function addToCart(product) {
+            let found = cart.find(item => item.id === product.id);
+            if (found) {
+                found.qty += 1;
+            } else {
+                cart.push({...product, qty: 1});
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            alert('Added to cart!');
+        }
+
+        function filterProducts(category) {
+            currentFilter = category;
+            
+            // Update button styles (you'll add CSS later)
+            let buttons = document.querySelectorAll('#categoryButtons button');
+            buttons.forEach(btn => {
+                if (btn.textContent === category || (category === 'all' && btn.textContent === 'All')) {
+                    btn.style.background = 'lightblue';
+                } else {
+                    btn.style.background = '';
+                }
+            });
+            
+            displayProducts();
+        }
+
+        function displayProducts() {
+            let filtered = currentFilter === 'all' 
+                ? allProducts 
+                : allProducts.filter(p => p.category === currentFilter);
+            
+            let html = '';
+            filtered.forEach(p => {
+                html += `
+                    <div class="product-card">
+                        <img src="${p.image}" class="product-img">
+                        <h3>${p.name}</h3>
+                        <small>${p.category}</small>
+                        <div class="price-cart">
+                            <span class="price">₱${p.price}</span>                        
+                            <button onclick='addToCart(${JSON.stringify(p).replace(/'/g, "\\'")})'>Order</button>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('menu').innerHTML = html || '<p>No products in this category</p>';
+        }
+
+        // Load products and categories
+        Promise.all([
+            fetch('/api/products').then(res => res.json()),
+            fetch('/api/categories').then(res => res.json())
+        ]).then(([products, categories]) => {
+            allProducts = products;
+            
+            // Create category buttons
+            let categoryHtml = '<button onclick="filterProducts(\'all\')">All</button>';
+            categories.forEach(cat => {
+                categoryHtml += ` <button onclick="filterProducts('${cat}')">${cat}</button>`;
+            });
+           document.getElementById('categoryButtons').innerHTML = categoryHtml;
+            
+            // Show all products
+            displayProducts();
+        });
+
+        updateCartCount();
+    </script> 
+</body>
+</html>
