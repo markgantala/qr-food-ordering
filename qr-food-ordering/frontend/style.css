@@ -438,18 +438,34 @@ input{
 
 /* Mobile Optimization */
 
-@media(max-width:480px){
+@media(max-width:768px){
     #menu{
-        grid-template-columns: repeat(2,1fr);
-    }
-
-    .product-img{
-        height:100px;
+        grid-template-columns: repeat(3,1fr) !important;
     }
 }
 
-@media (max-width:600px){
+/* For your Infinix Hot 15 Pro and similar phones */
+@media(max-width:600px){
     #menu{
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2,1fr) !important;
+        gap: 10px;
+    }
+    
+    .product-img{
+        height: 120px;
+        width: 100%;
+        object-fit: cover;
+    }
+}
+
+/* For very small phones */
+@media(max-width:380px){
+    #menu{
+        grid-template-columns: repeat(2,1fr) !important;
+        gap: 8px;
+    }
+    
+    .product-img{
+        height: 100px;
     }
 }
